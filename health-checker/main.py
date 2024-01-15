@@ -1,16 +1,23 @@
 import time
 from datetime import timedelta
+import tkinter as tk
+from tkinter import filedialog
 
 import requests
 import typer
 import yaml
 
 
-yamlFile = 'urls.yaml'
+def get_file():
+    root = tk.Tk()
+    root.withdraw()
+    file = filedialog.askopenfilename()
+    
+    return file
 
 
-def get_endpoints_from_file(urlFile):
-    with open(urlFile, 'r', encoding='utf-8') as file:
+def parse_endpoints_from_file(url_file):
+    with open(url_file, 'r', encoding='utf-8') as file:
         data = yaml.full_load(file)
         endpoints = []
         for row in data:
@@ -27,7 +34,8 @@ def get_endpoints_from_file(urlFile):
 
 
 def return_endpoint_status():
-    endpoints = get_endpoints_from_file(yamlFile)
+    url_file = get_file()
+    endpoints = parse_endpoints_from_file(url_file)
     for endpoint in endpoints:
         url = endpoint.get('url')
         name = endpoint.get('name')
