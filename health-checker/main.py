@@ -1,5 +1,6 @@
 import typer
 import requests
+import time
 from datetime import timedelta
 
 
@@ -19,5 +20,14 @@ def return_endpoint_status():
             print('DOWN')
 
 
+def run_health_checker():
+    i = 0
+    while True:
+        i += 1
+        print(f'Test Cycle {i}')
+        return_endpoint_status()
+        time.sleep(15)
+
+
 if __name__ == "__main__":
-    typer.run(return_endpoint_status)
+    typer.run(run_health_checker)
