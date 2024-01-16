@@ -6,6 +6,7 @@ import time
 import tkinter as tk
 from tkinter import filedialog
 from datetime import timedelta
+from urllib.parse import urlparse
 
 import requests
 import typer
@@ -48,17 +49,17 @@ def return_endpoint_status():
         endpoint['total_availability_count'] += 1
         total = endpoint.get('total_availability_count')
         url = endpoint.get('url')
-        name = endpoint.get('name')
+        domain = urlparse(url).netloc
         response = requests.get(url, timeout=10)
         if response.status_code and response.elapsed < timedelta(microseconds=500000):
             endpoint['up_availability_count'] += 1
             up = endpoint.get('up_availability_count')
             availability = round(100 * (up/total))
-            print(f'{name} has {availability}% availability percentage')
+            print(f'{domain} has {availability}% availability percentage')
         else:
             up = endpoint.get('up_availability_count')
             availability = round(100 * (up/total))
-            print(f'{name} has {availability}% availability percentage')
+            print(f'{domain} has {availability}% availability percentage')
 
 
 def run_health_checker():
