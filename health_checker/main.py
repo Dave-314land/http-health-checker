@@ -15,6 +15,7 @@ import yaml
 
 ENDPOINTS = []
 DOMAINS = {}
+TOTAL_AVAILABILITY_COUNT = 0
 
 
 def get_file():
@@ -36,9 +37,7 @@ def parse_endpoints_from_file():
                 'method': row.get('method'),
                 'name': row.get('name'),
                 'url': row.get('url'),
-                'body': row.get('body'),
-                'up_availability_count': 0,
-                'total_availability_count': 0
+                'body': row.get('body')
             }
             ENDPOINTS.append(endpoint)
 
@@ -67,17 +66,35 @@ def transform_domain_set_to_dict():
         DOMAINS[domain] = 0
 
 
+def total_availability_counter():
+    """Increases count by 1"""
+    global TOTAL_AVAILABILITY_COUNT
+    TOTAL_AVAILABILITY_COUNT += 1
+
+
+def calculate_domain_availability():
+    """Caculates the availability of the domains"""
+    domains = DOMAINS
+    for domain, up_count in domains.items():
+        domain_availability = round(100 * (up_count/TOTAL_AVAILABILITY_COUNT))
+        print(f'{domain} has {domain_availability}% availability percentage')
+
+
 def return_endpoint_status():
     """Returns endpoint status"""
     endpoints = ENDPOINTS
     domains = DOMAINS
+    print(f'domains: {domains}')
     for endpoint in endpoints:
-        endpoint['total_availability_count'] += 1
+        total_availability_counter()
         url = endpoint.get('url')
         domain = urlparse(url).netloc
         response = requests.get(url, timeout=10)
         if response.status_code and response.elapsed < timedelta(microseconds=500000):
             domains[domain] += 1
+            print(endpoint)
+            print(f'total avail: {TOTAL_AVAILABILITY_COUNT}')
+    calculate_domain_availability()
 
 
 def run_health_checker():
