@@ -14,8 +14,7 @@ import yaml
 
 
 ENDPOINTS = []
-DOMAINS = {}
-TOTAL_AVAILABILITY_COUNT = 0
+DOMAINS = []
 
 
 def get_file():
@@ -63,22 +62,24 @@ def transform_domain_set_to_dict():
     domain_set = extract_domains()
     sorted_domains = sort_domains(domain_set)
     for domain in sorted_domains:
-        DOMAINS[domain] = 0
-
-
-def total_availability_counter():
-    """Increases count by 1"""
-    global TOTAL_AVAILABILITY_COUNT
-    TOTAL_AVAILABILITY_COUNT += 1
+        element = {
+            'name': domain,
+            'up_count': 0,
+            'down_count': 0
+        }
+        DOMAINS.append(element)
 
 
 def calculate_domain_availability():
     """Caculates the availability of the domains"""
     domains = DOMAINS
-    for domain, up_count in domains.items():
-        #print(domain, up_count)
-        domain_availability = round(100 * (up_count/TOTAL_AVAILABILITY_COUNT))
-        print(f'{domain} has {domain_availability}% availability percentage and total avail count is {TOTAL_AVAILABILITY_COUNT}')
+    for domain in domains:
+        domain_name = domain.get('name')
+        up_count = domain.get('up_count')
+        down_count = domain.get('down_count')
+        total_count = up_count + down_count
+        domain_availability = round(100 * (up_count/total_count))
+        print(f'{domain_name} has {domain_availability}% availability percentage')
 
 
 def build_payload(endpoint):
@@ -109,17 +110,33 @@ def set_request_structure(endpoint):
     return response
 
 
+def increase_domain_up_count(url_domain):
+    """Increase the domain's up count by 1"""
+    domains = DOMAINS
+    for domain in domains:
+        if domain['name'] == url_domain:
+            domain['up_count'] += 1
+
+
+def increase_domain_down_count(url_domain):
+    """Increase the doamin's down count by 1"""
+    domains = DOMAINS
+    for domain in domains:
+        if domain['name'] == url_domain:
+            domain['down_count'] += 1
+
+
 def return_endpoint_status():
     """Returns endpoint status"""
     endpoints = ENDPOINTS
-    domains = DOMAINS
     for endpoint in endpoints:
-        total_availability_counter()
         response = set_request_structure(endpoint)
         url = endpoint.get('url')
-        domain = urlparse(url).netloc
+        url_domain = urlparse(url).netloc
         if response.status_code and response.elapsed < timedelta(microseconds=500000):
-            domains[domain] += 1
+            increase_domain_up_count(url_domain)
+        else:
+            increase_domain_down_count(url_domain)
     calculate_domain_availability()
 
 
