@@ -14,6 +14,7 @@ import yaml
 
 
 ENDPOINTS = []
+DOMAINS = {}
 
 
 def get_file():
@@ -42,24 +43,33 @@ def parse_endpoints_from_file():
             ENDPOINTS.append(endpoint)
 
 
+def extract_domains():
+    """Creates a set of unique domains"""
+    endpoints = ENDPOINTS
+    domain_set = set()
+    for endpoint in endpoints:
+        url = endpoint.get('url')
+        domain = urlparse(url).netloc
+        domain_set.add(domain)
+    return domain_set
+
+
+def sort_domains(the_set):
+    """Sorting domains for consistent output"""
+    return sorted(the_set)
+
+
 def return_endpoint_status():
     """Returns endpoint status"""
     endpoints = ENDPOINTS
+    domains = DOMAINS
     for endpoint in endpoints:
         endpoint['total_availability_count'] += 1
-        total = endpoint.get('total_availability_count')
         url = endpoint.get('url')
         domain = urlparse(url).netloc
         response = requests.get(url, timeout=10)
         if response.status_code and response.elapsed < timedelta(microseconds=500000):
-            endpoint['up_availability_count'] += 1
-            up = endpoint.get('up_availability_count')
-            availability = round(100 * (up/total))
-            print(f'{domain} has {availability}% availability percentage')
-        else:
-            up = endpoint.get('up_availability_count')
-            availability = round(100 * (up/total))
-            print(f'{domain} has {availability}% availability percentage')
+            domains[domain] += 1
 
 
 def run_health_checker():
