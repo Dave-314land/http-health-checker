@@ -13,6 +13,9 @@ import typer
 import yaml
 
 
+ENDPOINTS = []
+
+
 def get_file():
     """Prompts user to select a file with a file dialog"""
     root = tk.Tk()
@@ -21,11 +24,11 @@ def get_file():
     return file
 
 
-def parse_endpoints_from_file(url_file):
+def parse_endpoints_from_file():
     """Creates endpoint entries from passed-in file"""
-    with open(url_file, 'r', encoding='utf-8') as file:
+    yaml_file = get_file()
+    with open(yaml_file, 'r', encoding='utf-8') as file:
         data = yaml.full_load(file)
-        endpoints = []
         for row in data:
             endpoint = {
                 'headers': row.get('headers'),
@@ -34,15 +37,12 @@ def parse_endpoints_from_file(url_file):
                 'url': row.get('url'),
                 'body': row.get('body')
             }
-
-            endpoints.append(endpoint)
-        return endpoints
+            ENDPOINTS.append(endpoint)
 
 
 def return_endpoint_status():
     """Returns endpoint status"""
-    url_file = get_file()
-    endpoints = parse_endpoints_from_file(url_file)
+    endpoints = ENDPOINTS
     for endpoint in endpoints:
         url = endpoint.get('url')
         name = endpoint.get('name')
@@ -55,6 +55,7 @@ def return_endpoint_status():
 
 def run_health_checker():
     """Runs program on a loop"""
+    parse_endpoints_from_file()
     i = 0
     while True:
         i += 1
