@@ -76,24 +76,50 @@ def calculate_domain_availability():
     """Caculates the availability of the domains"""
     domains = DOMAINS
     for domain, up_count in domains.items():
+        #print(domain, up_count)
         domain_availability = round(100 * (up_count/TOTAL_AVAILABILITY_COUNT))
-        print(f'{domain} has {domain_availability}% availability percentage')
+        print(f'{domain} has {domain_availability}% availability percentage and total avail count is {TOTAL_AVAILABILITY_COUNT}')
+
+
+def build_payload(endpoint):
+    """Builds the payload from endpoint data"""
+    header_data = endpoint.get('headers')
+    body_data = endpoint.get('body')
+    payload = {
+        'headers': header_data,
+        'body': body_data
+    }
+    return payload
+
+
+def set_request_structure(endpoint):
+    """Sets the request structure for the endpoint response"""
+    url = endpoint.get('url')
+    method = endpoint.get('method')
+    payload = build_payload(endpoint)
+    default_get_request = requests.get(url, params=payload, timeout=10)
+    http_methods = {
+        'GET': requests.get(url, params=payload, timeout=10),
+        'POST': requests.post(url, data=payload, timeout=10),
+        'PUT': requests.put(url, data=payload, timeout=10),
+        'PATCH': requests.patch(url, data=payload, timeout=10),
+        'HEAD': requests.head(url, timeout=10)
+    }
+    response = http_methods.get(method, default_get_request)
+    return response
 
 
 def return_endpoint_status():
     """Returns endpoint status"""
     endpoints = ENDPOINTS
     domains = DOMAINS
-    print(f'domains: {domains}')
     for endpoint in endpoints:
         total_availability_counter()
+        response = set_request_structure(endpoint)
         url = endpoint.get('url')
         domain = urlparse(url).netloc
-        response = requests.get(url, timeout=10)
         if response.status_code and response.elapsed < timedelta(microseconds=500000):
             domains[domain] += 1
-            print(endpoint)
-            print(f'total avail: {TOTAL_AVAILABILITY_COUNT}')
     calculate_domain_availability()
 
 
