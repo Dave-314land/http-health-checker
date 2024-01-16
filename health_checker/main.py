@@ -53,9 +53,12 @@ def return_endpoint_status():
         if response.status_code and response.elapsed < timedelta(microseconds=500000):
             endpoint['up_availability_count'] += 1
             up = endpoint.get('up_availability_count')
-            print(f'{name} is UP. It has been up {up} out of {total} times')
+            availability = round(100 * (up/total))
+            print(f'{name} has {availability}% availability percentage')
         else:
-            print(f'{name} is DOWN. It has been up {up} out of {total} times')
+            up = endpoint.get('up_availability_count')
+            availability = round(100 * (up/total))
+            print(f'{name} has {availability}% availability percentage')
 
 
 def run_health_checker():
@@ -64,7 +67,7 @@ def run_health_checker():
     i = 0
     while True:
         i += 1
-        print(f'Test Cycle {i}')
+        print(f'Test cycle #{i}')
         return_endpoint_status()
         time.sleep(15)
 
