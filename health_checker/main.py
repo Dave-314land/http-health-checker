@@ -2,7 +2,6 @@
 HTTP Health Checker
 A program to check the health of a set of HTTP endpoints fed in from a yaml file
 """
-
 import time
 import tkinter as tk
 from tkinter import filedialog
@@ -35,7 +34,9 @@ def parse_endpoints_from_file():
                 'method': row.get('method'),
                 'name': row.get('name'),
                 'url': row.get('url'),
-                'body': row.get('body')
+                'body': row.get('body'),
+                'up_availability_count': 0,
+                'total_availability_count': 0
             }
             ENDPOINTS.append(endpoint)
 
@@ -44,13 +45,17 @@ def return_endpoint_status():
     """Returns endpoint status"""
     endpoints = ENDPOINTS
     for endpoint in endpoints:
+        endpoint['total_availability_count'] += 1
+        total = endpoint.get('total_availability_count')
         url = endpoint.get('url')
         name = endpoint.get('name')
         response = requests.get(url, timeout=10)
         if response.status_code and response.elapsed < timedelta(microseconds=500000):
-            print(f'{name} is UP')
+            endpoint['up_availability_count'] += 1
+            up = endpoint.get('up_availability_count')
+            print(f'{name} is UP. It has been up {up} out of {total} times')
         else:
-            print(f'{name} is DOWN')
+            print(f'{name} is DOWN. It has been up {up} out of {total} times')
 
 
 def run_health_checker():
