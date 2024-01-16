@@ -59,6 +59,14 @@ def sort_domains(the_set):
     return sorted(the_set)
 
 
+def transform_domain_set_to_dict():
+    """Transforms set into dictionary"""
+    domain_set = extract_domains()
+    sorted_domains = sort_domains(domain_set)
+    for domain in sorted_domains:
+        DOMAINS[domain] = 0
+
+
 def return_endpoint_status():
     """Returns endpoint status"""
     endpoints = ENDPOINTS
@@ -75,6 +83,7 @@ def return_endpoint_status():
 def run_health_checker():
     """Runs program on a loop"""
     parse_endpoints_from_file()
+    transform_domain_set_to_dict()
     i = 0
     while True:
         i += 1
