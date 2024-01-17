@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "piland-http-health-checker"
-version = "0.2.1"
+version = "0.3.0"
 description = "A program to check the health of a set of HTTP endpoints"
 authors = ["Dave Piland <dave.l.piland@gmail.com>"]
 readme = "README.md"
