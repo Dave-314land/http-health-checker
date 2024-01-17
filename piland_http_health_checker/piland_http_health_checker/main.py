@@ -13,6 +13,9 @@ import typer
 import yaml
 
 
+app = typer.Typer()
+
+
 ENDPOINTS = []
 DOMAINS = []
 
@@ -79,7 +82,7 @@ def calculate_domain_availability():
         down_count = domain.get('down_count')
         total_count = up_count + down_count
         domain_availability = round(100 * (up_count/total_count))
-        print(f'{domain_name} has {domain_availability}% availability percentage')
+        typer.echo(f'{domain_name} has {domain_availability}% availability percentage')
 
 
 def build_payload(endpoint):
@@ -139,8 +142,8 @@ def return_endpoint_status():
             increase_domain_down_count(url_domain)
     calculate_domain_availability()
 
-
-def run_health_checker():
+@app.command()
+def run_program():
     """Runs program on a loop"""
     parse_endpoints_from_file()
     transform_domain_set_to_dict()
@@ -152,5 +155,13 @@ def run_health_checker():
         time.sleep(15)
 
 
+@app.command()
+def rick():
+    """
+    Do not run this command
+    """
+    typer.echo('Never Gonna Give You Up')
+
+
 if __name__ == "__main__":
-    typer.run(run_health_checker)
+    app()
